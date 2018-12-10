@@ -1,5 +1,6 @@
 package net.app.util;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -42,6 +43,7 @@ public class HttpUtils {
             httpresponse = httpCient.execute(httpPost);
             HttpEntity httpEntity = httpresponse.getEntity();
             String response = EntityUtils.toString(httpEntity, "utf-8");
+            JSONObject json = JSONObject.parseObject(response);
             return response;
         }catch(ClientProtocolException e){
             System.out.println("http请求失败，uri{},exception{}");

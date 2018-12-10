@@ -49,14 +49,23 @@ public class ExportExcelUtil {
 //                System.err.println(row.getCell(2));
                 String appName = row.getCell(2).toString();
                 String str = HttpUtils.HttpPost(appName, "", "https://sj.qq.com/myapp/searchAjax.htm");
-                boolean isLive = getAppName(str, "");
+                System.err.println(str);
+                boolean isRetry = isRetry(str);
+//                if (isRetry) {
+//                      str = HttpUtils.HttpPost(appName, "", "https://sj.qq.com/myapp/searchAjax.htm");
+//
+//                }
+                if (isRetry){
+                    row.getCell(10).setCellValue("待人工验证");
+                }else{
+                boolean isLive = getAppName(str, appName.replaceAll(" ", ""));
                 if (isLive) {
                     row.getCell(11).setCellValue("有效");
                 } else {
                     row.getCell(12).setCellValue("无效");
 
                 }
-
+                }
 
             }
 
@@ -68,6 +77,15 @@ public class ExportExcelUtil {
 
 
     }
+
+    public static boolean isRetry(String str) {
+        JSONObject json = JSONObject.parseObject(str);
+        if ("".equals(json.getString("obj")) || json.getString("obj") == null) {
+            return true;
+        }
+        return false;
+    }
+
     private static boolean getAppName(String str, String appName) {
         JSONObject json = JSONObject.parseObject(str);
         if (!"".equals(json.getString("obj"))) {
