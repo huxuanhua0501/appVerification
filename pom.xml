@@ -120,6 +120,13 @@
           <include>**/*.properties</include>
         </includes>
       </resource>
+        <resource>
+            <directory>src/main/webapp</directory>
+            <includes>
+                <include>**/*.xml</include>
+                <include>**/*.jsp</include>
+            </includes>
+        </resource>
     </resources>
   </build>
   <profiles>

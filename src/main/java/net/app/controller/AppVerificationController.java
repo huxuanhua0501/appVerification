@@ -18,7 +18,7 @@ import java.util.Date;
  * @versoin 1.0
  **/
 @RestController
-@RequestMapping(value = "/app")
+//@RequestMapping(value = "/app")
 public class AppVerificationController {
     @PostMapping(value = "/verify")
     public void verify(@RequestParam("file") CommonsMultipartFile file, HttpServletResponse response) throws Exception {
