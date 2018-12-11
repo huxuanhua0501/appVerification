@@ -16,9 +16,10 @@
 --%>
 
 <form name="Form2" action="/app/verify" method="post"  enctype="multipart/form-data">
-    <h1>采用multipart提供的file.transfer方法上传文件</h1>
+    <h1>app验证小程序</h1>
+    <h2>验证会比较慢，最后会有下载提示！！！</h2>
     <input type="file" name="file">
-    <input type="submit" value="upload"/>
+    <input type="submit" value="上传"/>
 </form>
 
 <%--<form name="Form2" action="/SpringMVC006/springUpload" method="post"  enctype="multipart/form-data">

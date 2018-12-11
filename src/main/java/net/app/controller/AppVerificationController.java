@@ -22,10 +22,13 @@ import java.util.Date;
 public class AppVerificationController {
     @PostMapping(value = "/verify")
     public void verify(@RequestParam("file") CommonsMultipartFile file, HttpServletResponse response) throws Exception {
+        String tomcat_path =  System.getProperty("user.dir");//user.dir指定了当前的路径
+        String  path  = tomcat_path.substring(0,System.getProperty( "user.dir" ).lastIndexOf(File.separator)) +File.separator+"webapps"+File.separator+"checkApp";
+//        System.err.println(pathxx);
         long startTime = System.currentTimeMillis();
         String appName =  new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + ".xlsx";
         System.out.println("fileName：" +appName);
-        String path = "E:" + File.separator + "checkApp";
+//        String path = "E:" + File.separator + "checkApp";
         boolean sucess = delFile(new File(path));
         if (sucess) {
             System.err.println("删除成功");

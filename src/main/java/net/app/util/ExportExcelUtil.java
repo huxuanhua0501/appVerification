@@ -73,7 +73,7 @@ public class ExportExcelUtil {
                         if (getAnzhiAppName(appName)) {
                             row.getCell(11).setCellValue("有效");
                         } else {
-
+                            /**小米验证**/
                             if (getMiAppName(appName)) {
                                 row.getCell(11).setCellValue("有效");
                             } else {
