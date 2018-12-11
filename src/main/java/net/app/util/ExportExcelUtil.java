@@ -1,18 +1,20 @@
 package net.app.util;
 
 import com.alibaba.fastjson.JSONObject;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.junit.jupiter.api.Test;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.List;
 
 public class ExportExcelUtil {
 
@@ -48,23 +50,39 @@ public class ExportExcelUtil {
             if (row.getRowNum() != 0) {
 //                System.err.println(row.getCell(2));
                 String appName = row.getCell(2).toString();
+                /**逻辑：应用宝验证有效，其他不用验证，否则再验证安智，同理无效，再验证小米。
+                 * 应用宝：安智：小米
+                 *
+                 * 应用宝验证**/
                 String str = HttpUtils.HttpPost(appName, "", "https://sj.qq.com/myapp/searchAjax.htm");
-                System.err.println(str);
+//                System.err.println(str);
                 boolean isRetry = isRetry(str);
-//                if (isRetry) {
-//                      str = HttpUtils.HttpPost(appName, "", "https://sj.qq.com/myapp/searchAjax.htm");
-//
-//                }
-                if (isRetry){
-                    row.getCell(10).setCellValue("待人工验证");
-                }else{
-                boolean isLive = getAppName(str, appName.replaceAll(" ", ""));
-                if (isLive) {
-                    row.getCell(11).setCellValue("有效");
+                if (isRetry) {
+                    Thread.sleep(5000);
+                    str = HttpUtils.HttpPost(appName, "", "https://sj.qq.com/myapp/searchAjax.htm");
+                    if (isRetry(str)){
+                        row.getCell(10).setCellValue("被网站屏蔽，人工或者摘出重试");
+                    }
                 } else {
-                    row.getCell(12).setCellValue("无效");
+                    boolean isLive = getAppName(str, appName.replaceAll(" ", ""));
+                    if (isLive) {
+                        row.getCell(11).setCellValue("有效");
+                    } else {
 
-                }
+                        /**安智验证**/
+                        if (getAnzhiAppName(appName)) {
+                            row.getCell(11).setCellValue("有效");
+                        } else {
+
+                            if (getMiAppName(appName)) {
+                                row.getCell(11).setCellValue("有效");
+                            } else {
+                                row.getCell(12).setCellValue("无效");
+                            }
+                        }
+
+
+                    }
                 }
 
             }
@@ -102,5 +120,70 @@ public class ExportExcelUtil {
 
     }
 
+
+    private static boolean getAnzhiAppName(String appName) {
+        Document doc = null;
+        try {
+            doc = Jsoup.connect("http://www.anzhi.com/search.php?keyword=" + appName).get();
+            Elements elements = doc.getElementsByClass("app_name");
+            if (!elements.isEmpty()) {
+                String name = elements.first().text().trim();
+                if (StringUtils.equals(appName, name)) {
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+
+    }
+
+    private static boolean getMiAppName(String appName) {
+        Document doc = null;
+        try {
+            doc = Jsoup.connect("http://app.mi.com/search?keywords=" + appName).get();
+            Elements elements = doc.getElementsByTag("h5");
+            if (!elements.isEmpty()) {
+                String name = elements.first().text().trim();
+                if (StringUtils.equals(appName, name)) {
+                    return true;
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+
+
+    }
+
+    @Test
+    public void go() throws IOException {
+        Document doc = Jsoup.connect("http://www.anzhi.com/search.php?keyword=" + "王者荣耀").get();
+        Elements elements = doc.getElementsByClass("app_name");
+        if (!elements.isEmpty()) {
+            System.err.println(elements.first().text().trim());
+        }
+//         for(Element e : elements) {
+//
+//            System.out.println("标题==>"+e.text().trim());//获取标题
+//        }
+    }
+
+    @Test
+    public void xiaomi() throws IOException {
+        Document doc = Jsoup.connect("http://app.mi.com/search?keywords=" + "王者荣耀").get();
+//        System.err.println(doc);
+        Elements elements = doc.getElementsByTag("h5");
+        if (!elements.isEmpty()) {
+            System.err.println(elements.first().text().trim());
+        }
+        for (Element e : elements) {
+
+            System.err.println(e.text().trim());
+        }
+    }
 
 }
